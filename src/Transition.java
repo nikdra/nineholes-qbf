@@ -18,10 +18,6 @@ public class Transition {
         }
     }
 
-    /**
-     * Generate a transition given the clauses for action and frame axioms
-     * @throws TransitionException in case something went wrong
-     */
     private void gen_transition() throws TransitionException {
         StringBuilder res = new StringBuilder();
         String[] tr_vars = new String[moves.size() + frames.size()];

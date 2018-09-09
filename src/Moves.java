@@ -1,6 +1,6 @@
 public class Moves {
     private int step;
-    private String[][] vars = new String[10][10];
+    private String[][] vars = new String[9][9];
     private String[] vars_1d = new String[72];
     private Locations current;
     private Locations next;
@@ -33,8 +33,8 @@ public class Moves {
      */
     private void gen_variables() {
         int c = 0;
-        for(int i = 1; i < 10; i++) {
-            for(int j = 1; j < 10; j++) {
+        for(int i = 0; i < 9; i++) {
+            for(int j = 0; j < 9; j++) {
                 if(i != j) {
                     //move variables: m + first index is the step number, second is the current position, third the desired position
                     vars[i][j] = "m_" + step +"_" + i +"_"+ j;
@@ -54,10 +54,10 @@ public class Moves {
         //move preconditions: mp + first index is the step number, second is the current position, third the desired position
         //help variables: precondition + he + counter
         if(step % 2 == 0) { //white move
-            for(int i = 1; i < 10; i++) {
-                for(int j = 1; j < 10; j++) {
+            for(int i = 0; i < 9; i++) {
+                for(int j = 0; j < 9; j++) {
                     if(i != j) {
-                        String[] p_vars = {current.getWhite()[i-1], "-" + current.getBlack()[j-1], "-" + current.getWhite()[j-1]};
+                        String[] p_vars = {current.getWhite()[i], "-" + current.getBlack()[j], "-" + current.getWhite()[j]};
                         String p_help = "mp_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(p_vars, true) + "\n";
                         res.append(p_help);
                         String[] p_gate = {"-" + vars[i][j], "mp_" + step + "_" + i + "_" + j +"_he"};
@@ -68,10 +68,10 @@ public class Moves {
                 }
             }
         } else { //black move
-            for(int i = 1; i < 10; i++) {
-                for(int j = 1; j < 10; j++) {
+            for(int i = 0; i < 9; i++) {
+                for(int j = 0; j < 9; j++) {
                     if(i != j) {
-                        String[] p_vars = {current.getBlack()[i-1], "-" + current.getWhite()[j-1], "-" + current.getBlack()[j-1]};
+                        String[] p_vars = {current.getBlack()[i], "-" + current.getWhite()[j], "-" + current.getBlack()[j]};
                         String p_help = "mp_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(p_vars, true) + "\n";
                         res.append(p_help);
                         String[] p_gate = {"-" + vars[i][j], "mp_" + step + "_" + i + "_" + j +"_he"};
@@ -97,10 +97,10 @@ public class Moves {
         //help variables: effect + heof solvers
         // + counter
         if(step % 2 == 0) { //white move
-            for(int i = 1; i < 10; i++) {
-                for(int j = 1; j < 10; j++) {
+            for(int i = 0; i < 9; i++) {
+                for(int j = 0; j < 9; j++) {
                     if(i != j) {
-                        String[] e_vars = {"-" + next.getWhite()[i-1], next.getWhite()[j-1]};
+                        String[] e_vars = {"-" + next.getWhite()[i], next.getWhite()[j]};
                         String e_help = "me_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(e_vars, true) + "\n";
                         res.append(e_help);
                         String[] e_gate = {"-" + vars[i][j], "me_" + step + "_" + i + "_" + j +"_he"};
@@ -111,10 +111,10 @@ public class Moves {
                 }
             }
         } else { //black move
-            for(int i = 1; i < 10; i++) {
-                for(int j = 1; j < 10; j++) {
+            for(int i = 0; i < 9; i++) {
+                for(int j = 0; j < 9; j++) {
                     if(i != j) {
-                        String[] e_vars = {"-" + next.getBlack()[i-1], next.getBlack()[j-1]};
+                        String[] e_vars = {"-" + next.getBlack()[i], next.getBlack()[j]};
                         String e_help = "me_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(e_vars, true) + "\n";
                         res.append(e_help);
                         String[] e_gate = {"-" + vars[i][j], "me_" + step + "_" + i + "_" + j +"_he"};

@@ -6,18 +6,13 @@ import java.util.List;
 
 public class Generator {
 
-    private static int k = 3; //assumed to be odd
+    private static int k = 7; //assumed to be odd
 
-    /**
-     * Generate a qbf encoding for nine holes with the upper bound on moves k.
-     * The result is written to encoding.qcir in this project's folder
-     * @param args //TODO write this program as a command line application
-     */
     public static void main(String[] args) {
         //location variables: first index is the step number, second index is the position
         //the following two line represent the initial condition on the board
-        String[] w_0 = {"w_0_1", "w_0_2", "-w_0_3", "-w_0_4", "-w_0_5", "w_0_6", "-w_0_7", "-w_0_8", "-w_0_9"};
-        String[] b_0 = {"-b_0_1", "-b_0_2", "-b_0_3", "b_0_4", "b_0_5", "-b_0_6", "b_0_7", "-b_0_8", "-b_0_9"};
+        String[] w_0 = {"w_0_0", "w_0_1", "-w_0_2", "-w_0_3", "-w_0_4", "w_0_5", "-w_0_6", "-w_0_7", "-w_0_8"};
+        String[] b_0 = {"-b_0_0", "-b_0_1", "-b_0_2", "b_0_3", "b_0_4", "-b_0_5", "b_0_6", "-b_0_7", "-b_0_8"};
 
         //initial condition
         String i_w;
@@ -32,7 +27,7 @@ public class Generator {
             System.err.println(e.getMessage());
             return;
         }
-        try { //generate move,transition and goal objects
+        try {
             List<Moves> m_w = new LinkedList<>();
             List<Frame> fr_w = new LinkedList<>();
             List<Moves> m_b = new LinkedList<>();
@@ -54,7 +49,7 @@ public class Generator {
             System.err.println(e.getMessage());
             return;
         }
-        String body; //generate the body (or matrix) of the qbf
+        String body;
         if(k != 1) {
             body = i_w + "\n" + i_b + "\n" + tr_w.getTransition() + "\n" + tr_b.getTransition() + "\n"+  g.getGoal() + '\n';
             body += "implication = or(-tr_b,g)\n";
@@ -63,7 +58,7 @@ public class Generator {
             body = i_w + "\n" + i_b + "\n" + tr_w.getTransition() + "\n" +  g.getGoal() + '\n';
             body += "out = and(i_w,i_b,tr_w,g)";
         }
-        //generate the quantifier block
+
         StringBuilder res = new StringBuilder();
         res.append("#QCIR-G14 \n");
         for (int i = 0; i < k; i++) {
@@ -90,7 +85,6 @@ public class Generator {
         res.append("\n");
         BufferedWriter bw = null;
         FileWriter fw = null;
-        //write the generated string formula to a file
         try {
             fw = new FileWriter("encoding.qcir");
             bw = new BufferedWriter(fw);

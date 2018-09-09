@@ -22,6 +22,8 @@ public class Goal {
             res.append('\n');
             goal_vars[k++] = bg_h[i];
         }
+        res.append(gen_white_goal_step(0)); //a white win can also happen on turn 0
+        res.append('\n');
         for(int i = 1; i <= steps; i = i + 2) {
             res.append(gen_white_goal_step(i));
             res.append('\n');
