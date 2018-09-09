@@ -24,7 +24,6 @@ public class Frame {
         this.fr1_gate = "fr1_" + step;
         this.fr2_gate = "fr2_" + step;
         this.fr3_gate = "fr3_" + step;
-        this.fr4_gate = "fr4_" + step;
         gen_frame_one();
         gen_frame_two();
         gen_frame_three();
