@@ -10,9 +10,6 @@ public class Transition {
         this.moves = moves;
         this.frames = frames;
         this.id = id;
-        if(moves.size() != frames.size()) {
-            throw new TransitionException("Moves and frames do not have the same number of steps");
-        }
         if(moves.size() > 0) {
             gen_transition();
         }
@@ -23,25 +20,11 @@ public class Transition {
         String[] tr_vars = new String[moves.size() + frames.size()];
         int k = 0;
         for(Moves move : moves) {
-            res.append(move.getPrecondition());
-            res.append('\n');
-            res.append(move.getEffect());
-            res.append('\n');
-            res.append(move.getInvariant());
-            res.append('\n');
-            res.append(move.getAction());
-            res.append('\n');
+            res.append(move.generateMoveBlock());
             tr_vars[k++] = move.getAction_gate();
         }
         for(Frame frame : frames) {
-            res.append(frame.getFr1());
-            res.append('\n');
-            res.append(frame.getFr2());
-            res.append('\n');
-            res.append(frame.getFr3());
-            res.append('\n');
-            res.append(frame.getFr());
-            res.append('\n');
+            res.append(frame.generateFrameBlock());
             tr_vars[k++] = frame.getFr_gate();
         }
         try {

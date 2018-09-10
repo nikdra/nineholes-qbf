@@ -6,6 +6,7 @@ public class Goal {
     private String[] bg_h;
 
     //TODO fix bug for steps = 1
+    //TODO rewrite such that white wins even if black manages to win in a later step
     public Goal(int steps) throws OperatorException{
         this.steps = steps;
         wg_h = new String[steps+1];

@@ -6,13 +6,13 @@ import java.util.List;
 
 public class Generator {
 
-    private static int k = 7; //assumed to be odd
+    private static int k = 5; //assumed to be odd
 
     public static void main(String[] args) {
         //location variables: first index is the step number, second index is the position
         //the following two line represent the initial condition on the board
         String[] w_0 = {"w_0_0", "w_0_1", "-w_0_2", "-w_0_3", "-w_0_4", "w_0_5", "-w_0_6", "-w_0_7", "-w_0_8"};
-        String[] b_0 = {"-b_0_0", "-b_0_1", "-b_0_2", "b_0_3", "b_0_4", "-b_0_5", "b_0_6", "-b_0_7", "-b_0_8"};
+        String[] b_0 = {"-b_0_0", "-b_0_1", "b_0_2", "b_0_3", "b_0_4", "-b_0_5", "-b_0_6", "-b_0_7", "-b_0_8"};
 
         //initial condition
         String i_w;
@@ -34,16 +34,15 @@ public class Generator {
             List<Frame> fr_b = new LinkedList<>();
             for (int i = 0; i < k; i++) {
                 Moves m = new Moves(i);
+                fr_w.add(new Frame(m));
                 if (i % 2 == 0) {
                     m_w.add(m);
-                    fr_w.add(new Frame(m));
                 } else {
                     m_b.add(m);
-                    fr_b.add(new Frame(m));
                 }
             }
-            tr_w = new Transition(m_w, fr_w, "tr_w");
             tr_b = new Transition(m_b, fr_b, "tr_b");
+            tr_w = new Transition(m_w, fr_w, "tr_w");
             g = new Goal(k);
         } catch (OperatorException | TransitionException e) {
             System.err.println(e.getMessage());
@@ -51,9 +50,16 @@ public class Generator {
         }
         String body;
         if(k != 1) {
-            body = i_w + "\n" + i_b + "\n" + tr_w.getTransition() + "\n" + tr_b.getTransition() + "\n"+  g.getGoal() + '\n';
-            body += "implication = or(-tr_b,g)\n";
-            body += "out = and(i_w,i_b,tr_w,implication)";
+            body = i_w + "\n" + i_b + "\n" + tr_b.getTransition() + "\n" + tr_w.getTransition() + "\n"+  g.getGoal() + '\n';
+
+            if(k > 1) {
+                body += "implication = or(-tr_b,g)\n";
+            }
+            if(k > 1) {
+                body += "out = and(i_w,i_b,tr_w,implication)";
+            } else {
+                body += "out = and(i_w,i_b,tr_w,g)";
+            }
         } else {
             body = i_w + "\n" + i_b + "\n" + tr_w.getTransition() + "\n" +  g.getGoal() + '\n';
             body += "out = and(i_w,i_b,tr_w,g)";
@@ -114,10 +120,10 @@ public class Generator {
      * @throws OperatorException in case less than two variables are present
      */
     public static String n_ary(String[] vars, boolean and) throws OperatorException {
-        if (vars.length < 2) {
-            throw new OperatorException("Can not connect less than two variables to an and-clause");
-        }
         StringBuilder ret = new StringBuilder();
+        if(vars == null) {
+            throw new OperatorException("Array of given variables was null");
+        }
         if (and) {
             ret.append("and(");
         } else {

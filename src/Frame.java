@@ -12,14 +12,6 @@ public class Frame {
     private String fr;
     private String fr_gate;
 
-    public String getFr() {
-        return fr;
-    }
-
-    public String getFr_gate() {
-        return fr_gate;
-    }
-
     public Frame(Moves moves) throws OperatorException {
         this.moves = moves;
         this.step = moves.getStep();
@@ -30,9 +22,14 @@ public class Frame {
         gen_frame_one();
         gen_frame_two();
         gen_frame_three();
-        //gen_frame_four();
+        gen_frame_four();
         fr_gate = "fr_" + step;
-        fr = fr_gate + " = " + "and(" + fr1_gate + "," + fr2_gate +  "," + fr3_gate + ")";//"," + fr4_gate +")";
+        if(step % 2 == 0) {
+            fr = fr_gate + " = " + "and(" + fr1_gate + "," + fr2_gate + "," + fr3_gate + "," + fr4_gate + ")";
+        } else {
+            fr = "fr_gate_" + step + " = " + "and(" + fr1_gate + "," + fr2_gate + "," + fr3_gate + "," + fr4_gate + ")\n";
+            fr += fr_gate + " = " + "or(-ac_" + step + "," + "fr_gate_" + step + ")";
+        }
     }
 
     /**
@@ -140,7 +137,9 @@ public class Frame {
     }
 
     /**
-     * Generate a string representing the thrid frame axiom - a player's counters remain unchanged when it is not their move
+     * Generate a string representing the thrid frame axiom - a player's counters remain unchanged when it is not their
+     * move. Since the existential player (white) controls the board, they are responsible for the location of pieces on
+     * the board.
      * @throws OperatorException in case something went wrong
      */
     public void gen_frame_three() throws OperatorException{
@@ -164,47 +163,62 @@ public class Frame {
     }
 
     /**
-     * A frame which is not documented in the draft (yet). It states that exactly one positional variable of a player
-     * must change its value per turn.
-     *
-     * @throws OperatorException
+     * Generate a String representing the effects for all moves - it is a block that can be inserted into the encoding
      */
-    //TODO this is false. exactly two variables must be changed
     public void gen_frame_four() throws OperatorException{
         StringBuilder res = new StringBuilder();
-        String[] fr4_vars = new String[9];
-        if(step % 2 == 0) {
-            for(int i = 0; i < moves.getCurrent().getWhite().length; i++) {
-                String pos_one = "fr4_xor_" + step + "_" + (i+1) + " = " + Generator.xor(moves.getCurrent().getWhite()[i], moves.getNext().getWhite()[i]) + "\n";
-                fr4_vars[i] = "fr4_xor_" + step + "_" + (i+1);
-                res.append(pos_one);
+        String[] fr4_vars = new String[72];
+        int c = 0;
+        //move effect: me + first index is the step number, second is the current position, third the desired position
+        //help variables: effect + heof solvers
+        // + counter
+        if(step % 2 == 0) { //white move
+            for(int i = 0; i < 9; i++) {
+                for(int j = 0; j < 9; j++) {
+                    if(i != j) {
+                        String[] e_vars = {"-" + moves.getNext().getWhite()[i], moves.getNext().getWhite()[j]};
+                        String e_help = "me_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(e_vars, true) + "\n";
+                        res.append(e_help);
+                        String[] e_gate = {"-" + moves.getVars()[i][j], "me_" + step + "_" + i + "_" + j +"_he"};
+                        String effect = "me_" + step + "_" + i + "_" + j + " = " + Generator.n_ary(e_gate, false) + "\n";
+                        res.append(effect);
+                        fr4_vars[c++] = "me_" + step + "_" + i + "_" + j;
+                    }
+                }
             }
-        } else {
-            for(int i = 0; i < moves.getCurrent().getBlack().length; i++) {
-                String pos_one = "fr4_xor_" + step + "_" + (i+1) + " = " + Generator.xor(moves.getCurrent().getBlack()[i], moves.getNext().getBlack()[i]) + "\n";
-                fr4_vars[i] = "fr4_xor_" + step + "_" + (i+1);
-                res.append(pos_one);
+        } else { //black move
+            for(int i = 0; i < 9; i++) {
+                for(int j = 0; j < 9; j++) {
+                    if(i != j) {
+                        String[] e_vars = {"-" + moves.getNext().getBlack()[i], moves.getNext().getBlack()[j]};
+                        String e_help = "me_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(e_vars, true) + "\n";
+                        res.append(e_help);
+                        String[] e_gate = {"-" + moves.getVars()[i][j], "me_" + step + "_" + i + "_" + j +"_he"};
+                        String effect = "me_" + step + "_" + i + "_" + j + " = " + Generator.n_ary(e_gate, false) + "\n";
+                        res.append(effect);
+                        fr4_vars[c++] = "me_" + step + "_" + i + "_" + j;
+                    }
+                }
             }
         }
-        String[] amos = new String[36];
-        int amos_c = 0;
-        for(int i = 0; i < fr4_vars.length-1; i++) {
-            for(int j = i+1; j < fr4_vars.length; j++) {
-                String[] mu_vars = {"-" + fr4_vars[i], "-" + fr4_vars[j]};
-                String amo = "fr4_" + step + "_" + amos_c + " = " + Generator.n_ary(mu_vars, false) + "\n";
-                res.append(amo);
-                amos[amos_c] =  "fr4_" + step + "_" + amos_c;
-                amos_c++;
-            }
-        }
-        String amo_s = "fr4_amo_" + step + " = " + Generator.n_ary(amos, true) + "\n";
-        res.append(amo_s);
-        String alo_s = "fr4_alo_" + step + " = " + Generator.n_ary(fr4_vars, false) + "\n";
-        res.append(alo_s);
-        String[] inv_vars = {"fr4_amo_" + step, "fr4_alo_" + step};
-        String fr4_s = fr4_gate + " = " + Generator.n_ary(inv_vars, true);
+        String fr4_s = fr4_gate + " = " + Generator.n_ary(fr4_vars, true);
         fr4 = res.append(fr4_s).toString();
 
+    }
+
+    public String generateFrameBlock() {
+        StringBuilder res = new StringBuilder();
+        res.append(getFr1());
+        res.append('\n');
+        res.append(getFr2());
+        res.append('\n');
+        res.append(getFr3());
+        res.append('\n');
+        res.append(getFr4());
+        res.append('\n');
+        res.append(getFr());
+        res.append('\n');
+        return res.toString();
     }
 
     public String getFr1_gate() {
@@ -237,5 +251,13 @@ public class Frame {
 
     public String getFr4_gate() {
         return fr4_gate;
+    }
+
+    public String getFr() {
+        return fr;
+    }
+
+    public String getFr_gate() {
+        return fr_gate;
     }
 }

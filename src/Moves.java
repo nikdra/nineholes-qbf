@@ -5,7 +5,6 @@ public class Moves {
     private Locations current;
     private Locations next;
     private String precondition;
-    private String effect;
     private String invariant;
     private String precondition_gate;
     private String effect_gate;
@@ -22,10 +21,9 @@ public class Moves {
         invariant_gate = "min_" + step;
         gen_variables();
         gen_precondition();
-        gen_effect();
         gen_invariant();
         action_gate = "ac_" + step;
-        action = action_gate + " = " + "and(" + precondition_gate + "," + effect_gate + "," + invariant_gate +")";
+        action = action_gate + " = " + "and(" + precondition_gate + "," + invariant_gate +")";
     }
 
     /**
@@ -87,50 +85,6 @@ public class Moves {
     }
 
     /**
-     * Generate a String representing the effects for all moves - it is a block that can be inserted into the encoding
-     */
-    private void gen_effect() throws OperatorException {
-        StringBuilder res = new StringBuilder();
-        String[] eff_vars = new String[72];
-        int c = 0;
-        //move effect: me + first index is the step number, second is the current position, third the desired position
-        //help variables: effect + heof solvers
-        // + counter
-        if(step % 2 == 0) { //white move
-            for(int i = 0; i < 9; i++) {
-                for(int j = 0; j < 9; j++) {
-                    if(i != j) {
-                        String[] e_vars = {"-" + next.getWhite()[i], next.getWhite()[j]};
-                        String e_help = "me_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(e_vars, true) + "\n";
-                        res.append(e_help);
-                        String[] e_gate = {"-" + vars[i][j], "me_" + step + "_" + i + "_" + j +"_he"};
-                        String effect = "me_" + step + "_" + i + "_" + j + " = " + Generator.n_ary(e_gate, false) + "\n";
-                        res.append(effect);
-                        eff_vars[c++] = "me_" + step + "_" + i + "_" + j;
-                    }
-                }
-            }
-        } else { //black move
-            for(int i = 0; i < 9; i++) {
-                for(int j = 0; j < 9; j++) {
-                    if(i != j) {
-                        String[] e_vars = {"-" + next.getBlack()[i], next.getBlack()[j]};
-                        String e_help = "me_" + step + "_" + i + "_" + j +"_he = " + Generator.n_ary(e_vars, true) + "\n";
-                        res.append(e_help);
-                        String[] e_gate = {"-" + vars[i][j], "me_" + step + "_" + i + "_" + j +"_he"};
-                        String effect = "me_" + step + "_" + i + "_" + j + " = " + Generator.n_ary(e_gate, false) + "\n";
-                        res.append(effect);
-                        eff_vars[c++] = "me_" + step + "_" + i + "_" + j;
-                    }
-                }
-            }
-        }
-        String ef_s = effect_gate + " = " + Generator.n_ary(eff_vars, true);
-        effect = res.append(ef_s).toString();
-    }
-
-    /**
-     * Generate a String representing the effects for all moves - it is a block that can be inserted into the encoding
      * The invariant is independent of whose move it is - it simply states that exactly one move must be made
      */
     private void gen_invariant() throws OperatorException {
@@ -155,12 +109,19 @@ public class Moves {
         invariant = res.append(in_s).toString();
     }
 
-    public String getPrecondition() {
-        return precondition;
+    public String generateMoveBlock() {
+        StringBuilder res = new StringBuilder();
+        res.append(getPrecondition());
+        res.append('\n');
+        res.append(getInvariant());
+        res.append('\n');
+        res.append(getAction());
+        res.append('\n');
+        return res.toString();
     }
 
-    public String getEffect() {
-        return effect;
+    public String getPrecondition() {
+        return precondition;
     }
 
     public String getInvariant() {
