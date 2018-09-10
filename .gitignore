@@ -26,7 +26,8 @@ hs_err_pid*
 .idea/
 .idea_modules/
 *.iws
-out/
+out
+*.iml
 
 # Linux 
 *~
