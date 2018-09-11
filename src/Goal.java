@@ -20,7 +20,7 @@ public class Goal {
             res.append(gen_black_goal_step(i));
             res.append('\n');
         }
-        res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a borad position)
+        res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a board position)
         res.append('\n');
         String g_0 = "g_" + 0 + " = and(" + wg_h[0] +")\n";
         res.append(g_0);

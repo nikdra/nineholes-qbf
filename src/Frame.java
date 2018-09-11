@@ -26,7 +26,7 @@ public class Frame {
         fr_gate = "fr_" + step;
         if(step % 2 == 0) {
             fr = fr_gate + " = " + "and(" + fr1_gate + "," + fr2_gate + "," + fr3_gate + "," + fr4_gate + ")";
-        } else {
+        } else { //a frame for the black player. The white player only has to check the black player's moves if the move was legal
             fr = "fr_gate_" + step + " = " + "and(" + fr1_gate + "," + fr2_gate + "," + fr3_gate + "," + fr4_gate + ")\n";
             fr += fr_gate + " = " + "or(-ac_" + step + "," + "fr_gate_" + step + ")";
         }
@@ -170,8 +170,7 @@ public class Frame {
         String[] fr4_vars = new String[72];
         int c = 0;
         //move effect: me + first index is the step number, second is the current position, third the desired position
-        //help variables: effect + heof solvers
-        // + counter
+        //help variables: effect + he + counter
         if(step % 2 == 0) { //white move
             for(int i = 0; i < 9; i++) {
                 for(int j = 0; j < 9; j++) {
