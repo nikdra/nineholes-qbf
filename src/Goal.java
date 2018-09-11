@@ -5,8 +5,6 @@ public class Goal {
     private String[] wg_h;
     private String[] bg_h;
 
-    //TODO fix bug for steps = 1
-    //TODO rewrite such that white wins even if black manages to win in a later step
     public Goal(int steps) throws OperatorException{
         this.steps = steps;
         wg_h = new String[steps+1];
@@ -21,27 +19,30 @@ public class Goal {
         for(int i = 0; i < steps; i = i + 2) { //add clauses for black goal
             res.append(gen_black_goal_step(i));
             res.append('\n');
-            goal_vars[k++] = bg_h[i];
         }
-        res.append(gen_white_goal_step(0)); //a white win can also happen on turn 0
+        res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a borad position)
         res.append('\n');
+        String g_0 = "g_" + 0 + " = and(" + wg_h[0] +")\n";
+        res.append(g_0);
+        goal_vars[k++] = "g_" + 0;
         for(int i = 1; i <= steps; i = i + 2) {
             res.append(gen_white_goal_step(i));
             res.append('\n');
-        }
-        res.append("wg = or(");
-        for(int i = 1; i <= steps; i = i + 2) {
-            if(i != 1) {
+            String g_s = "g_" + i + " =  and(" + wg_h[i];
+            res.append(g_s);
+            for(int j = 0; j < i; j = j+2) {
                 res.append(',');
+                res.append(bg_h[j]);
             }
-            res.append(wg_h[i]);
+            res.append(")\n");
+            goal_vars[k++] = "g_" + i;
         }
-        res.append(")\n");
         String goal_s;
-        goal_vars[k] = "wg";
-
-        goal_s = goal_gate + " = " + Generator.n_ary(goal_vars, true);
-
+        if(k != 1) {
+            goal_s = goal_gate + " = " + Generator.n_ary(goal_vars, false);
+        } else {
+            goal_s = goal_gate + " = or(" + goal_vars[0] + "," + goal_vars[1] +")";
+        }
         goal = res.append(goal_s).toString();
     }
 

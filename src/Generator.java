@@ -6,13 +6,13 @@ import java.util.List;
 
 public class Generator {
 
-    private static int k = 5; //assumed to be odd
+    private static int k = 1; //assumed to be odd
 
     public static void main(String[] args) {
         //location variables: first index is the step number, second index is the position
         //the following two line represent the initial condition on the board
         String[] w_0 = {"w_0_0", "w_0_1", "-w_0_2", "-w_0_3", "-w_0_4", "w_0_5", "-w_0_6", "-w_0_7", "-w_0_8"};
-        String[] b_0 = {"-b_0_0", "-b_0_1", "b_0_2", "b_0_3", "b_0_4", "-b_0_5", "-b_0_6", "-b_0_7", "-b_0_8"};
+        String[] b_0 = {"-b_0_0", "-b_0_1", "-b_0_2", "b_0_3", "b_0_4", "-b_0_5", "b_0_6", "-b_0_7", "-b_0_8"};
 
         //initial condition
         String i_w;
@@ -130,6 +130,9 @@ public class Generator {
             ret.append("or(");
         }
         for (int i = 0; i < vars.length; i++) {
+            if(vars[i] == null) {
+                throw new OperatorException("Variable was null");
+            }
             ret.append(vars[i]);
             if (i != vars.length - 1) {
                 ret.append(",");
