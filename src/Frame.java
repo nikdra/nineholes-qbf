@@ -137,7 +137,7 @@ public class Frame {
     }
 
     /**
-     * Generate a string representing the thrid frame axiom - a player's counters remain unchanged when it is not their
+     * Generate a string representing the third frame axiom - a player's counters remain unchanged when it is not their
      * move. Since the existential player (white) controls the board, they are responsible for the location of pieces on
      * the board.
      * @throws OperatorException in case something went wrong

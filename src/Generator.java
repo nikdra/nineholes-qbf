@@ -6,13 +6,21 @@ import java.util.List;
 
 public class Generator {
 
-    private static int k = 1; //assumed to be odd
+    private static int k = 5; //assumed to be odd
+
+    private enum Goal_mode {
+        CLASSIC, NESTED
+    }
+
+    private static Goal_mode mode;
 
     public static void main(String[] args) {
         //location variables: first index is the step number, second index is the position
         //the following two line represent the initial condition on the board
-        String[] w_0 = {"w_0_0", "w_0_1", "-w_0_2", "-w_0_3", "-w_0_4", "w_0_5", "-w_0_6", "-w_0_7", "-w_0_8"};
-        String[] b_0 = {"-b_0_0", "-b_0_1", "-b_0_2", "b_0_3", "b_0_4", "-b_0_5", "b_0_6", "-b_0_7", "-b_0_8"};
+        String[] w_0 = {"-w_0_0", "-w_0_1", "-w_0_2", "-w_0_3", "w_0_4", "w_0_5", "-w_0_6", "w_0_7", "-w_0_8"};
+        String[] b_0 = {"b_0_0", "b_0_1", "-b_0_2", "b_0_3", "-b_0_4", "-b_0_5", "-b_0_6", "-b_0_7", "-b_0_8"};
+
+        mode = Goal_mode.NESTED;
 
         //initial condition
         String i_w;
@@ -49,20 +57,31 @@ public class Generator {
             return;
         }
         String body;
-        if(k != 1) {
-            body = i_w + "\n" + i_b + "\n" + tr_b.getTransition() + "\n" + tr_w.getTransition() + "\n"+  g.getGoal() + '\n';
-
-            if(k > 1) {
-                body += "implication = or(-tr_b,g)\n";
-            }
-            if(k > 1) {
-                body += "out = and(i_w,i_b,tr_w,implication)";
-            } else {
-                body += "out = and(i_w,i_b,tr_w,g)";
-            }
-        } else {
-            body = i_w + "\n" + i_b + "\n" + tr_w.getTransition() + "\n" +  g.getGoal() + '\n';
+        if (k == 1) { //this is the same for both variations of the matrix
+            body = i_w + "\n" + i_b + "\n" + tr_w.getTransition() + "\n" + g.getGoal() + '\n';
             body += "out = and(i_w,i_b,tr_w,g)";
+        } else { //generate all necessary gates
+            body = i_w + "\n" + i_b + "\n" + tr_b.getTransition() + "\n" + tr_w.getTransition() + "\n" + g.getGoal() + '\n';
+        }
+        if (mode == Goal_mode.CLASSIC) { //k > 1 and classic formulation
+            body += "implication = or(-tr_b,g)\n";
+            body += "out = and(i_w,i_b,tr_w,implication)";
+        } else { //TODO NESTED matrix formulation k > 1 and nested formulation
+            int c = 1;
+            int steps = k-2;
+            body += "ga0 = and(-gb_" + (k-1) + ",fr_gate_" + (steps) + ",ac_" + (k-1) +",fr_" + (k-1) + ",gw_" + k + ")\n"; //innermost clause
+            while(steps > 0) {
+                body += "ga" + c + "= or(-" + "ac_" + steps + ",ga" + (c-1) + ")\n";
+                body += "ga" + (c+1) + "= or(gw_" + steps + ", ga" + c + ")\n";
+                steps--;
+                c = c + 2;
+                if(steps > 0) {
+                    body += "ga" + c + " = and(-gb_" + steps + ",fr_gate_" + (steps-1) + ",ac_" + steps + ",fr_" + steps + ",ga" + (c-1) + ")\n";
+                    c++;
+                    steps--;
+                }
+            }
+            body += "out = and(i_w,i_b,ac_0,fr_0,ga" + --c + ")\n";
         }
 
         StringBuilder res = new StringBuilder();
@@ -92,17 +111,17 @@ public class Generator {
         BufferedWriter bw = null;
         FileWriter fw = null;
         try {
-            fw = new FileWriter("encoding.qcir");
+            fw = new FileWriter("loss_nested_" + k + ".qcir"); //TODO something generic
             bw = new BufferedWriter(fw);
             bw.write(res.toString());
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
             try {
-                if(bw != null) {
+                if (bw != null) {
                     bw.close();
                 }
-                if(fw != null) {
+                if (fw != null) {
                     fw.close();
                 }
             } catch (IOException e) {
@@ -121,7 +140,7 @@ public class Generator {
      */
     public static String n_ary(String[] vars, boolean and) throws OperatorException {
         StringBuilder ret = new StringBuilder();
-        if(vars == null) {
+        if (vars == null) {
             throw new OperatorException("Array of given variables was null");
         }
         if (and) {
@@ -130,7 +149,7 @@ public class Generator {
             ret.append("or(");
         }
         for (int i = 0; i < vars.length; i++) {
-            if(vars[i] == null) {
+            if (vars[i] == null) {
                 throw new OperatorException("Variable was null");
             }
             ret.append(vars[i]);

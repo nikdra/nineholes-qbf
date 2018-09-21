@@ -39,4 +39,5 @@ public class Transition {
     public String getTransition() {
         return transition;
     }
+
 }
