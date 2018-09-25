@@ -125,7 +125,7 @@ public class Generator {
         if (mode == Goal_mode.CLASSIC) { //k > 1 and classic formulation
             body += "implication = or(-tr_b,g)\n";
             body += "out = and(i_w,i_b,tr_w,implication)";
-        } else {
+        } else { //k > 1 and nested formulation
             int c = 1;
             int steps = k - 2;
             body += "ga0 = and(-gb_" + (k - 1) + ",fr_gate_" + (steps) + ",ac_" + (k - 1) + ",fr_" + (k - 1) + ",gw_" + k + ")\n"; //innermost clause
