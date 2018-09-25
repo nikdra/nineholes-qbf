@@ -66,7 +66,7 @@ public class Generator {
         if (mode == Goal_mode.CLASSIC) { //k > 1 and classic formulation
             body += "implication = or(-tr_b,g)\n";
             body += "out = and(i_w,i_b,tr_w,implication)";
-        } else { //TODO NESTED matrix formulation k > 1 and nested formulation
+        } else {
             int c = 1;
             int steps = k-2;
             body += "ga0 = and(-gb_" + (k-1) + ",fr_gate_" + (steps) + ",ac_" + (k-1) +",fr_" + (k-1) + ",gw_" + k + ")\n"; //innermost clause
@@ -81,7 +81,7 @@ public class Generator {
                     steps--;
                 }
             }
-            body += "out = and(i_w,i_b,ac_0,fr_0,ga" + --c + ")\n";
+            body += "out = and(i_w,i_b,ac_0,fr_0,ga" + --c + ")";
         }
 
         StringBuilder res = new StringBuilder();
