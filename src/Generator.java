@@ -1,12 +1,13 @@
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Generator {
 
-    private static int k = 5; //assumed to be odd
+    private static int k; //assumed to be odd
 
     private enum Goal_mode {
         CLASSIC, NESTED
@@ -17,10 +18,80 @@ public class Generator {
     public static void main(String[] args) {
         //location variables: first index is the step number, second index is the position
         //the following two line represent the initial condition on the board
-        String[] w_0 = {"-w_0_0", "-w_0_1", "-w_0_2", "-w_0_3", "w_0_4", "w_0_5", "-w_0_6", "w_0_7", "-w_0_8"};
-        String[] b_0 = {"b_0_0", "b_0_1", "-b_0_2", "b_0_3", "-b_0_4", "-b_0_5", "-b_0_6", "-b_0_7", "-b_0_8"};
+        String[] w_0 = new String[9];
+        String[] b_0 = new String[9];
 
-        mode = Goal_mode.NESTED;
+        if(args[0].equals("help")) {
+            System.out.println("USAGE: nineholes-qbf [steps] [MODE] [FILE]");
+            System.out.println(" possible modes: nested, classic");
+            return;
+        }
+
+        if(args.length == 3) {
+            try {
+                k = Integer.parseInt(args[0]);
+            } catch (NumberFormatException e) {
+                System.out.println("Error: Number of steps is not an integer");
+                return;
+            }
+            if(k % 2 == 0) {
+                System.out.println("Error: Number of steps is not odd");
+                return;
+            }
+            if(args[1].equals("nested")) {
+                mode = Goal_mode.NESTED;
+            } else if (args[1].equals("classic")){
+                mode = Goal_mode.CLASSIC;
+            } else {
+                System.out.println("Error: No such mode");
+                return;
+            }
+            String text;
+            try {
+                text = new String(Files.readAllBytes(Paths.get(args[2])), StandardCharsets.UTF_8);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+            if(text.length() != 19) {
+                System.out.println("Error in input file");
+                return;
+            }
+            boolean b = false;
+            for (int i = 0; i < text.length(); i++){
+                char c = text.charAt(i);
+                if((c =='\n') && (i == 9)) {
+                    b = true;
+                } else if(c == '\n') {
+                    System.out.println("Error in input file");
+                    return;
+                } else {
+                    if (b) { //black
+                        if (c == '1') {
+                            b_0[i - 10] = "b_0_" + (i - 10);
+                        } else if (c == '0') {
+                            b_0[i - 10] = "-b_0_" + (i - 10);
+                        } else {
+                            System.out.println("Error in input file");
+                            return;
+                        }
+                    } else { //white
+                        if (c == '1') {
+                            w_0[i] = "w_0_" + i;
+                        } else if (c == '0') {
+                            w_0[i] = "-w_0_" + i;
+                        } else {
+                            System.out.println("Error in input file");
+                            return;
+                        }
+                    }
+                }
+            }
+
+        } else {
+            System.out.println("USAGE: nineholes-qbf [steps] [MODE] [FILE]");
+            return;
+        }
 
         //initial condition
         String i_w;
@@ -108,26 +179,7 @@ public class Generator {
         res.append("output(out) \n");
         res.append(body);
         res.append("\n");
-        BufferedWriter bw = null;
-        FileWriter fw = null;
-        try {
-            fw = new FileWriter("loss_nested_" + k + ".qcir"); //TODO something generic
-            bw = new BufferedWriter(fw);
-            bw.write(res.toString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (bw != null) {
-                    bw.close();
-                }
-                if (fw != null) {
-                    fw.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        System.out.println(res.toString());
     }
 
     /**
