@@ -1,3 +1,5 @@
+package main;
+
 public class Frame {
     private int step;
     private Moves moves;

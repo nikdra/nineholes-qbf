@@ -1,3 +1,5 @@
+package main;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -8,11 +10,6 @@ import java.util.List;
 public class Generator {
 
     private static int k; //assumed to be odd
-
-    private enum Goal_mode {
-        CLASSIC, NESTED
-    }
-
     private static Goal_mode mode;
 
     public static void main(String[] args) {
@@ -21,76 +18,66 @@ public class Generator {
         String[] w_0 = new String[9];
         String[] b_0 = new String[9];
 
-        if(args[0].equals("help")) {
+        if (args.length != 3 || args[0].equals("-help")) {
             System.out.println("USAGE: nineholes-qbf [steps] [MODE] [FILE]");
             System.out.println(" possible modes: nested, classic");
             return;
         }
 
-        if(args.length == 3) {
-            try {
-                k = Integer.parseInt(args[0]);
-            } catch (NumberFormatException e) {
-                System.out.println("Error: Number of steps is not an integer");
-                return;
-            }
-            if(k % 2 == 0) {
-                System.out.println("Error: Number of steps is not odd");
-                return;
-            }
-            if(args[1].equals("nested")) {
-                mode = Goal_mode.NESTED;
-            } else if (args[1].equals("classic")){
-                mode = Goal_mode.CLASSIC;
-            } else {
-                System.out.println("Error: No such mode");
-                return;
-            }
-            String text;
-            try {
-                text = new String(Files.readAllBytes(Paths.get(args[2])), StandardCharsets.UTF_8);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
-            }
-            if(text.length() != 19) {
+        try {
+            k = Integer.parseInt(args[0]);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Number of steps is not an integer");
+            return;
+        }
+        if (k % 2 == 0) {
+            System.out.println("Error: Number of steps is not odd");
+            return;
+        }
+        if (args[1].equals("nested")) {
+            mode = Goal_mode.NESTED;
+        } else if (args[1].equals("classic")) {
+            mode = Goal_mode.CLASSIC;
+        } else {
+            System.out.println("Error: No such mode");
+            return;
+        }
+        String text;
+        try {
+            text = new String(Files.readAllBytes(Paths.get(args[2])), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return;
+        }
+        boolean b = false;
+        for (int i = 0; i < 19; i++) {
+            char c = text.charAt(i);
+            if ((c == '\n') && (i == 9)) {
+                b = true;
+            } else if (c == '\n') {
                 System.out.println("Error in input file");
                 return;
-            }
-            boolean b = false;
-            for (int i = 0; i < text.length(); i++){
-                char c = text.charAt(i);
-                if((c =='\n') && (i == 9)) {
-                    b = true;
-                } else if(c == '\n') {
-                    System.out.println("Error in input file");
-                    return;
-                } else {
-                    if (b) { //black
-                        if (c == '1') {
-                            b_0[i - 10] = "b_0_" + (i - 10);
-                        } else if (c == '0') {
-                            b_0[i - 10] = "-b_0_" + (i - 10);
-                        } else {
-                            System.out.println("Error in input file");
-                            return;
-                        }
-                    } else { //white
-                        if (c == '1') {
-                            w_0[i] = "w_0_" + i;
-                        } else if (c == '0') {
-                            w_0[i] = "-w_0_" + i;
-                        } else {
-                            System.out.println("Error in input file");
-                            return;
-                        }
+            } else {
+                if (b) { //black
+                    if (c == '1') {
+                        b_0[i - 10] = "b_0_" + (i - 10);
+                    } else if (c == '0') {
+                        b_0[i - 10] = "-b_0_" + (i - 10);
+                    } else {
+                        System.out.println("Error in input file");
+                        return;
+                    }
+                } else { //white
+                    if (c == '1') {
+                        w_0[i] = "w_0_" + i;
+                    } else if (c == '0') {
+                        w_0[i] = "-w_0_" + i;
+                    } else {
+                        System.out.println("Error in input file");
+                        return;
                     }
                 }
             }
-
-        } else {
-            System.out.println("USAGE: nineholes-qbf [steps] [MODE] [FILE]");
-            return;
         }
 
         //initial condition
@@ -127,6 +114,7 @@ public class Generator {
             System.err.println(e.getMessage());
             return;
         }
+
         String body;
         if (k == 1) { //this is the same for both variations of the matrix
             body = i_w + "\n" + i_b + "\n" + tr_w.getTransition() + "\n" + g.getGoal() + '\n';
@@ -139,15 +127,15 @@ public class Generator {
             body += "out = and(i_w,i_b,tr_w,implication)";
         } else {
             int c = 1;
-            int steps = k-2;
-            body += "ga0 = and(-gb_" + (k-1) + ",fr_gate_" + (steps) + ",ac_" + (k-1) +",fr_" + (k-1) + ",gw_" + k + ")\n"; //innermost clause
-            while(steps > 0) {
-                body += "ga" + c + "= or(-" + "ac_" + steps + ",ga" + (c-1) + ")\n";
-                body += "ga" + (c+1) + "= or(gw_" + steps + ", ga" + c + ")\n";
+            int steps = k - 2;
+            body += "ga0 = and(-gb_" + (k - 1) + ",fr_gate_" + (steps) + ",ac_" + (k - 1) + ",fr_" + (k - 1) + ",gw_" + k + ")\n"; //innermost clause
+            while (steps > 0) {
+                body += "ga" + c + "= or(-" + "ac_" + steps + ",ga" + (c - 1) + ")\n";
+                body += "ga" + (c + 1) + "= or(gw_" + steps + ", ga" + c + ")\n";
                 steps--;
                 c = c + 2;
-                if(steps > 0) {
-                    body += "ga" + c + " = and(-gb_" + steps + ",fr_gate_" + (steps-1) + ",ac_" + steps + ",fr_" + steps + ",ga" + (c-1) + ")\n";
+                if (steps > 0) {
+                    body += "ga" + c + " = and(-gb_" + steps + ",fr_gate_" + (steps - 1) + ",ac_" + steps + ",fr_" + steps + ",ga" + (c - 1) + ")\n";
                     c++;
                     steps--;
                 }
@@ -244,5 +232,9 @@ public class Generator {
             }
         }
         return ret.append(')').toString();
+    }
+
+    private enum Goal_mode {
+        CLASSIC, NESTED
     }
 }

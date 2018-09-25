@@ -1,3 +1,5 @@
+package main;
+
 public class Moves {
     private int step;
     private String[][] vars = new String[9][9];

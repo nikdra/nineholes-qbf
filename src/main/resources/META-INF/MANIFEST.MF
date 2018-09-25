@@ -1,0 +1,3 @@
+Manifest-Version: 1.0   
+ClassPath: .                                                                                                                                                                          
+Main-Class: Generator

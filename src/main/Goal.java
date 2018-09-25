@@ -1,3 +1,5 @@
+package main;
+
 public class Goal {
     private int steps;
     private String goal_gate = "g";

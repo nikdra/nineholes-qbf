@@ -1,3 +1,5 @@
+package main;
+
 public class Locations {
 
     private String[] vars = new String[18];
