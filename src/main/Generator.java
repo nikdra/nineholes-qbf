@@ -54,7 +54,7 @@ public class Generator {
             char c = text.charAt(i);
             if ((c == '\n') && (i == 9)) {
                 b = true;
-            } else if (c == '\n') {
+            } else if (i == 9) {
                 System.out.println("Error in input file");
                 return;
             } else {
