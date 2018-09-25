@@ -19,7 +19,7 @@ public class Generator {
         String[] b_0 = new String[9];
 
         if (args.length != 3 || args[0].equals("-help")) {
-            System.out.println("USAGE: nineholes-qbf [steps] [MODE] [FILE]");
+            System.out.println("USAGE: nineholes-qbf [steps] [mode] [FILE]");
             System.out.println(" possible modes: nested, classic");
             return;
         }
