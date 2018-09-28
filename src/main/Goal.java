@@ -55,11 +55,19 @@ public class Goal {
     private void gen_goal_nested() throws OperatorException{
         StringBuilder res = new StringBuilder();
         int k = 0;
-        for(int i = 0; i < steps; i = i + 2) { //add clauses for black goal
-            res.append(gen_black_goal_step(i));
+        for(int i = 0; i <= steps; i++) { //add clauses for black goal
+            if(i == 0) {
+                res.append(gen_black_goal_step(i));
+                res.append('\n');
+                res.append(gen_white_goal_step(i));
+            } else if(i % 2 == 0) {
+                res.append(gen_black_goal_step(i));
+            } else {
+                res.append(gen_white_goal_step(i));
+            }
             res.append('\n');
         }
-        res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a win position)
+        res.deleteCharAt(res.length() - 1);
         goal = res.toString();
     }
 
