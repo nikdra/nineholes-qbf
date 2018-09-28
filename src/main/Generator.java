@@ -107,8 +107,8 @@ public class Generator {
                     m_b.add(m);
                 }
             }
-            tr_b = new Transition(m_b, fr_b, "tr_b");
-            tr_w = new Transition(m_w, fr_w, "tr_w");
+            tr_b = new Transition(m_b, fr_b, "tr_b",mode == Goal_mode.CLASSIC);
+            tr_w = new Transition(m_w, fr_w, "tr_w",mode == Goal_mode.CLASSIC);
             g = new Goal(k, mode == Goal_mode.CLASSIC);
         } catch (OperatorException | TransitionException e) {
             System.err.println(e.getMessage());
@@ -140,7 +140,8 @@ public class Generator {
                     steps--;
                 }
             }
-            body += "out = and(i_w,i_b,ac_0,fr_0,ga" + --c + ")";
+            body += "turn0 = or(gw_0,-gb_0)\n";
+            body += "out = and(i_w,i_b,ac_0,fr_0,turn0,ga" + --c + ")";
         }
 
         StringBuilder res = new StringBuilder();

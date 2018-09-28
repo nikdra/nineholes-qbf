@@ -60,7 +60,6 @@ public class Goal {
             res.append('\n');
         }
         res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a win position)
-        res.append('\n');
         goal = res.toString();
     }
 
