@@ -7,14 +7,18 @@ public class Goal {
     private String[] wg_h;
     private String[] bg_h;
 
-    public Goal(int steps) throws OperatorException{
+    public Goal(int steps, boolean classic) throws OperatorException{
         this.steps = steps;
         wg_h = new String[steps+1];
         bg_h = new String[steps+1];
-        gen_goal();
+        if (classic) {
+            gen_goal_classic();
+        } else {
+            gen_goal_nested();
+        }
     }
 
-    private void gen_goal() throws OperatorException{
+    private void gen_goal_classic() throws OperatorException{
         StringBuilder res = new StringBuilder();
         String[] goal_vars = new String[steps/2+2];
         int k = 0;
@@ -22,7 +26,7 @@ public class Goal {
             res.append(gen_black_goal_step(i));
             res.append('\n');
         }
-        res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a board position)
+        res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a win position)
         res.append('\n');
         String g_0 = "g_" + 0 + " = and(" + wg_h[0] +")\n";
         res.append(g_0);
@@ -46,6 +50,18 @@ public class Goal {
             goal_s = goal_gate + " = or(" + goal_vars[0] + "," + goal_vars[1] +")";
         }
         goal = res.append(goal_s).toString();
+    }
+
+    private void gen_goal_nested() throws OperatorException{
+        StringBuilder res = new StringBuilder();
+        int k = 0;
+        for(int i = 0; i < steps; i = i + 2) { //add clauses for black goal
+            res.append(gen_black_goal_step(i));
+            res.append('\n');
+        }
+        res.append(gen_white_goal_step(0)); //white can win on step 0 (if the initial condition is set to a win position)
+        res.append('\n');
+        goal = res.toString();
     }
 
     private String gen_white_goal_step(int step) throws OperatorException {

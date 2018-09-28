@@ -100,7 +100,7 @@ public class Generator {
             List<Frame> fr_b = new LinkedList<>();
             for (int i = 0; i < k; i++) {
                 Moves m = new Moves(i);
-                fr_w.add(new Frame(m));
+                fr_w.add(new Frame(m, mode == Goal_mode.CLASSIC));
                 if (i % 2 == 0) {
                     m_w.add(m);
                 } else {
@@ -109,7 +109,7 @@ public class Generator {
             }
             tr_b = new Transition(m_b, fr_b, "tr_b");
             tr_w = new Transition(m_w, fr_w, "tr_w");
-            g = new Goal(k);
+            g = new Goal(k, mode == Goal_mode.CLASSIC);
         } catch (OperatorException | TransitionException e) {
             System.err.println(e.getMessage());
             return;
@@ -128,14 +128,14 @@ public class Generator {
         } else { //k > 1 and nested formulation
             int c = 1;
             int steps = k - 2;
-            body += "ga0 = and(-gb_" + (k - 1) + ",fr_gate_" + (steps) + ",ac_" + (k - 1) + ",fr_" + (k - 1) + ",gw_" + k + ")\n"; //innermost clause
+            body += "ga0 = and(-gb_" + (k - 1) + ",fr_" + (steps) + ",ac_" + (k - 1) + ",fr_" + (k - 1) + ",gw_" + k + ")\n"; //innermost clause
             while (steps > 0) {
                 body += "ga" + c + "= or(-" + "ac_" + steps + ",ga" + (c - 1) + ")\n";
                 body += "ga" + (c + 1) + "= or(gw_" + steps + ", ga" + c + ")\n";
                 steps--;
                 c = c + 2;
                 if (steps > 0) {
-                    body += "ga" + c + " = and(-gb_" + steps + ",fr_gate_" + (steps - 1) + ",ac_" + steps + ",fr_" + steps + ",ga" + (c - 1) + ")\n";
+                    body += "ga" + c + " = and(-gb_" + steps + ",fr_" + (steps - 1) + ",ac_" + steps + ",fr_" + steps + ",ga" + (c - 1) + ")\n";
                     c++;
                     steps--;
                 }

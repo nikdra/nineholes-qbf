@@ -14,7 +14,7 @@ public class Frame {
     private String fr;
     private String fr_gate;
 
-    public Frame(Moves moves) throws OperatorException {
+    public Frame(Moves moves, boolean classic) throws OperatorException {
         this.moves = moves;
         this.step = moves.getStep();
         this.fr1_gate = "fr1_" + step;
@@ -26,9 +26,9 @@ public class Frame {
         gen_frame_three();
         gen_frame_four();
         fr_gate = "fr_" + step;
-        if(step % 2 == 0) {
+        if(step % 2 == 0 || !classic) {
             fr = fr_gate + " = " + "and(" + fr1_gate + "," + fr2_gate + "," + fr3_gate + "," + fr4_gate + ")";
-        } else { //a frame for the black player. The white player only has to check the black player's moves if the move was legal
+        } else { //a frame for the black player. The white player only has to check the black player's moves if the move was legal. only necessary in classic encoding
             fr = "fr_gate_" + step + " = " + "and(" + fr1_gate + "," + fr2_gate + "," + fr3_gate + "," + fr4_gate + ")\n";
             fr += fr_gate + " = " + "or(-ac_" + step + "," + "fr_gate_" + step + ")";
         }
