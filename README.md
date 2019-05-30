@@ -5,6 +5,7 @@ To clone the repository and create an executable .jar file use the following com
 ```
 git clone https://github.com/nikdra/nineholes-qbf
 cd nineholes-qbf
+mkdir out
 javac -cp ./src/main ./src/main/*.java -d ./out/
 jar cvfm nineholes-qbf.jar ./src/main/resources/META-INF/MANIFEST.MF -C ./out/ .
 ```
