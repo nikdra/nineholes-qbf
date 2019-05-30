@@ -121,27 +121,28 @@ public class Generator {
             body += "out = and(i_w,i_b,tr_w,g)";
         } else { //generate all necessary gates
             body = i_w + "\n" + i_b + "\n" + tr_b.getTransition() + "\n" + tr_w.getTransition() + "\n" + g.getGoal() + '\n';
-        }
-        if (mode == Goal_mode.CLASSIC) { //k > 1 and classic formulation
-            body += "implication = or(-tr_b,g)\n";
-            body += "out = and(i_w,i_b,tr_w,implication)";
-        } else { //k > 1 and nested formulation
-            int c = 1;
-            int steps = k - 2;
-            body += "ga0 = and(-gb_" + (k - 1) + ",fr_" + (steps) + ",ac_" + (k - 1) + ",fr_" + (k - 1) + ",gw_" + k + ")\n"; //innermost clause
-            while (steps > 0) {
-                body += "ga" + c + "= or(-" + "ac_" + steps + ",ga" + (c - 1) + ")\n";
-                body += "ga" + (c + 1) + "= or(gw_" + steps + ", ga" + c + ")\n";
-                steps--;
-                c = c + 2;
-                if (steps > 0) {
-                    body += "ga" + c + " = and(-gb_" + steps + ",fr_" + (steps - 1) + ",ac_" + steps + ",fr_" + steps + ",ga" + (c - 1) + ")\n";
-                    c++;
+
+            if (mode == Goal_mode.CLASSIC) { //k > 1 and classic formulation
+                body += "implication = or(-tr_b,g)\n";
+                body += "out = and(i_w,i_b,tr_w,implication)";
+            } else { //k > 1 and nested formulation
+                int c = 1;
+                int steps = k - 2;
+                body += "ga0 = and(-gb_" + (k - 1) + ",fr_" + (steps) + ",ac_" + (k - 1) + ",fr_" + (k - 1) + ",gw_" + k + ")\n"; //innermost clause
+                while (steps > 0) {
+                    body += "ga" + c + "= or(-" + "ac_" + steps + ",ga" + (c - 1) + ")\n";
+                    body += "ga" + (c + 1) + "= or(gw_" + steps + ", ga" + c + ")\n";
                     steps--;
+                    c = c + 2;
+                    if (steps > 0) {
+                        body += "ga" + c + " = and(-gb_" + steps + ",fr_" + (steps - 1) + ",ac_" + steps + ",fr_" + steps + ",ga" + (c - 1) + ")\n";
+                        c++;
+                        steps--;
+                    }
                 }
+                body += "turn0 = or(gw_0,-gb_0)\n";
+                body += "out = and(i_w,i_b,ac_0,fr_0,turn0,ga" + --c + ")";
             }
-            body += "turn0 = or(gw_0,-gb_0)\n";
-            body += "out = and(i_w,i_b,ac_0,fr_0,turn0,ga" + --c + ")";
         }
 
         StringBuilder res = new StringBuilder();
