@@ -34,6 +34,12 @@ public class Generator {
             System.out.println("Error: Number of steps is not odd");
             return;
         }
+
+        if (k < 1) {
+            System.out.println("Error: Number of steps is smaller than one");
+            return;
+        }
+
         if (args[1].equals("nested")) {
             mode = Goal_mode.NESTED;
         } else if (args[1].equals("classic")) {
@@ -42,6 +48,11 @@ public class Generator {
             System.out.println("Error: No such mode");
             return;
         }
+
+        if(k == 1) { //for k = 1, the encodings are the same
+            mode = Goal_mode.CLASSIC;
+        }
+
         String text;
         try {
             text = new String(Files.readAllBytes(Paths.get(args[2])), StandardCharsets.UTF_8);
